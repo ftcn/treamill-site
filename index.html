@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Incline Walk Builder</title>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --ink: #1d1b17;
+        --muted: #6f685f;
+        --accent: #c46a3b;
+        --accent-2: #3b7f7a;
+        --card: #fffaf3;
+        --edge: #e4d9cc;
+        --shadow: 0 20px 60px rgba(29, 27, 23, 0.14);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background: radial-gradient(circle at top, #fff6ea 0%, #f6efe4 48%, #efe3d2 100%);
+        font-family: "Gill Sans", "Trebuchet MS", sans-serif;
+      }
+
+      .page {
+        position: relative;
+        overflow: hidden;
+        padding: 48px 24px 72px;
+      }
+
+      .page::before,
+      .page::after {
+        content: "";
+        position: absolute;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        opacity: 0.3;
+        z-index: 0;
+      }
+
+      .page::before {
+        background: radial-gradient(circle, rgba(196, 106, 59, 0.55), rgba(196, 106, 59, 0));
+        top: -120px;
+        right: -60px;
+      }
+
+      .page::after {
+        background: radial-gradient(circle, rgba(59, 127, 122, 0.45), rgba(59, 127, 122, 0));
+        bottom: -140px;
+        left: -80px;
+      }
+
+      .container {
+        position: relative;
+        z-index: 1;
+        max-width: 1080px;
+        margin: 0 auto;
+        display: grid;
+        gap: 28px;
+      }
+
+      header {
+        display: grid;
+        gap: 12px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.2rem, 3vw, 3rem);
+        font-family: "Copperplate Gothic Bold", "Copperplate Gothic", "Garamond", serif;
+        letter-spacing: 0.02em;
+      }
+
+      .subtitle {
+        max-width: 620px;
+        color: var(--muted);
+        font-size: 1rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--edge);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+        animation: rise 0.7s ease both;
+      }
+
+      .card h2 {
+        margin: 0 0 16px;
+        font-family: "Copperplate Gothic Bold", "Copperplate Gothic", "Garamond", serif;
+        font-size: 1.2rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      form {
+        display: grid;
+        gap: 16px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        font-weight: 600;
+      }
+
+      input {
+        border-radius: 12px;
+        border: 1px solid var(--edge);
+        padding: 10px 12px;
+        font-size: 1rem;
+        background: white;
+      }
+
+      button {
+        border: none;
+        padding: 12px 16px;
+        border-radius: 999px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        background: linear-gradient(120deg, var(--accent), #dd8b4e);
+        color: white;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 20px rgba(196, 106, 59, 0.35);
+      }
+
+      .meta {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border-bottom: 1px solid var(--edge);
+        text-align: right;
+      }
+
+      th:first-child,
+      td:first-child {
+        text-align: left;
+      }
+
+      tbody tr {
+        animation: fadeIn 0.6s ease both;
+      }
+
+      .note {
+        margin-top: 14px;
+        background: #f1e4d4;
+        border-radius: 12px;
+        padding: 12px 14px;
+        color: #5b3b28;
+        font-size: 0.95rem;
+      }
+
+      .footer {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 720px) {
+        .page {
+          padding: 32px 16px 56px;
+        }
+
+        th,
+        td {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="container">
+        <header>
+          <h1>Incline Walk Builder</h1>
+          <p class="subtitle">
+            Generate a paced treadmill plan that hits a calorie goal using speed and incline combinations in
+            metric units. Speed steps are 0.1 km/h. Incline steps are 0.5%.
+          </p>
+        </header>
+
+        <div class="grid">
+          <section class="card">
+            <h2>Inputs</h2>
+            <form id="workout-form">
+              <label>
+                Workout duration (minutes)
+                <input type="number" min="5" step="1" id="duration" value="60" required />
+              </label>
+              <label>
+                Weight (kg)
+                <input type="number" min="30" step="0.1" id="weight" value="80" required />
+              </label>
+              <label>
+                Number of intervals
+                <input type="number" min="1" step="1" id="intervals" value="4" required />
+              </label>
+              <label>
+                Target calories (kcal)
+                <input type="number" min="50" step="1" id="target" value="550" required />
+              </label>
+              <button type="submit">Generate workout</button>
+            </form>
+            <p class="meta" id="plan-meta"></p>
+          </section>
+
+          <section class="card">
+            <h2>Plan</h2>
+            <div class="meta" id="total-cals">Enter your numbers to build a plan.</div>
+            <div class="meta" id="target-gap"></div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Interval</th>
+                  <th>Minutes</th>
+                  <th>Speed (km/h)</th>
+                  <th>Incline (%)</th>
+                  <th>Est. kcal</th>
+                </tr>
+              </thead>
+              <tbody id="plan-body"></tbody>
+            </table>
+            <div class="note" id="note" hidden></div>
+            <p class="footer">Estimate only. Adjust for safety and comfort.</p>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const SPEED_MIN = 3.0;
+      const SPEED_MAX = 6.3;
+      const INCLINE_MIN = 2.0;
+      const INCLINE_MAX_FAST = 13.0;
+      const INCLINE_MAX_SLOW = 20.0;
+
+      const BASE_SPEED_MIN = 4.0;
+      const BASE_SPEED_MAX = 6.0;
+      const BASE_INCLINE_MIN = 4.0;
+      const BASE_INCLINE_MAX = 12.0;
+
+      const form = document.getElementById("workout-form");
+      const tableBody = document.getElementById("plan-body");
+      const totalCals = document.getElementById("total-cals");
+      const targetGap = document.getElementById("target-gap");
+      const note = document.getElementById("note");
+      const planMeta = document.getElementById("plan-meta");
+
+      function clamp(value, minValue, maxValue) {
+        return Math.max(minValue, Math.min(value, maxValue));
+      }
+
+      function quantize(value, step) {
+        return Math.round(value / step) * step;
+      }
+
+      function maxInclineForSpeed(speedKmh) {
+        return speedKmh < 4.0 ? INCLINE_MAX_SLOW : INCLINE_MAX_FAST;
+      }
+
+      function inclineCapStep(speedKmh, step) {
+        const cap = maxInclineForSpeed(speedKmh);
+        return Math.floor(cap / step) * step;
+      }
+
+      function caloriesPerMin(speedKmh, inclinePct, weightKg) {
+        const speedMPerMin = speedKmh * (1000 / 60);
+        const grade = inclinePct / 100;
+        const vo2 = 0.1 * speedMPerMin + 1.8 * speedMPerMin * grade + 3.5;
+        return (vo2 * weightKg) / 1000 * 5;
+      }
+
+      function buildBaseIntervals(count) {
+        const base = [];
+        for (let i = 0; i < count; i += 1) {
+          const t = count > 1 ? i / (count - 1) : 0;
+          const speed = BASE_SPEED_MIN + t * (BASE_SPEED_MAX - BASE_SPEED_MIN);
+          const incline = BASE_INCLINE_MIN + t * (BASE_INCLINE_MAX - BASE_INCLINE_MIN);
+          base.push({ speed, incline });
+        }
+        return base;
+      }
+
+      function scaleIntervals(baseIntervals, scale) {
+        return baseIntervals.map(({ speed, incline }) => {
+          let newSpeed = clamp(speed * scale, SPEED_MIN, SPEED_MAX);
+          newSpeed = quantize(newSpeed, 0.1);
+          const maxInclineStep = inclineCapStep(newSpeed, 0.5);
+          let newIncline = clamp(incline * scale, INCLINE_MIN, maxInclineStep);
+          newIncline = quantize(newIncline, 0.5);
+          newIncline = Math.min(newIncline, maxInclineStep);
+          return { speed: newSpeed, incline: newIncline };
+        });
+      }
+
+      function totalCalories(intervals, intervalMinutes, weightKg) {
+        return intervals.reduce((sum, interval) => {
+          const kcal = caloriesPerMin(interval.speed, interval.incline, weightKg) * intervalMinutes;
+          return sum + kcal;
+        }, 0);
+      }
+
+      function renderPlan(intervals, intervalMinutes, weightKg) {
+        tableBody.innerHTML = "";
+        intervals.forEach((interval, index) => {
+          const kcal = caloriesPerMin(interval.speed, interval.incline, weightKg) * intervalMinutes;
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${intervalMinutes.toFixed(1)}</td>
+            <td>${interval.speed.toFixed(1)}</td>
+            <td>${interval.incline.toFixed(1)}</td>
+            <td>${kcal.toFixed(0)}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
+
+      function setNote(message) {
+        if (message) {
+          note.textContent = message;
+          note.hidden = false;
+        } else {
+          note.textContent = "";
+          note.hidden = true;
+        }
+      }
+
+      function onSubmit(event) {
+        event.preventDefault();
+        const duration = Number.parseFloat(document.getElementById("duration").value);
+        const weight = Number.parseFloat(document.getElementById("weight").value);
+        const intervals = Number.parseInt(document.getElementById("intervals").value, 10);
+        const target = Number.parseFloat(document.getElementById("target").value);
+
+        if (!(duration > 0 && weight > 0 && intervals > 0 && target > 0)) {
+          totalCals.textContent = "Please enter valid numbers in every field.";
+          targetGap.textContent = "";
+          tableBody.innerHTML = "";
+          setNote("");
+          return;
+        }
+
+        const intervalMinutes = duration / intervals;
+        const base = buildBaseIntervals(intervals);
+        const baseTotal = totalCalories(base, intervalMinutes, weight);
+        const rawScale = Math.sqrt(Math.max(0.1, target / baseTotal));
+        const scale = clamp(rawScale, 0.7, 1.6);
+        const plan = scaleIntervals(base, scale);
+        const finalTotal = totalCalories(plan, intervalMinutes, weight);
+
+        renderPlan(plan, intervalMinutes, weight);
+
+        planMeta.textContent = `Interval length: ${intervalMinutes.toFixed(1)} min`;
+        totalCals.textContent = `Estimated total: ${finalTotal.toFixed(0)} kcal`;
+
+        if (target > 0) {
+          const gap = Math.abs(finalTotal - target) / target;
+          const gapSign = finalTotal >= target ? "above" : "below";
+          targetGap.textContent = `Target gap: ${Math.abs(finalTotal - target).toFixed(0)} kcal ${gapSign}`;
+          setNote(
+            gap > 0.1
+              ? "Target may be hard to hit within safe speed and incline limits."
+              : ""
+          );
+        }
+      }
+
+      form.addEventListener("submit", onSubmit);
+      onSubmit(new Event("submit"));
+    </script>
+  </body>
+</html>

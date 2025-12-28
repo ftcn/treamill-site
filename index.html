@@ -258,6 +258,7 @@
             <h2>Plan</h2>
             <div class="meta" id="total-cals">Enter your numbers to build a plan.</div>
             <div class="meta" id="target-gap"></div>
+            <button type="button" id="shuffle-btn">Shuffle again</button>
             <table>
               <thead>
                 <tr>
@@ -295,6 +296,10 @@
       const targetGap = document.getElementById("target-gap");
       const note = document.getElementById("note");
       const planMeta = document.getElementById("plan-meta");
+      const shuffleBtn = document.getElementById("shuffle-btn");
+      let currentPlan = [];
+      let currentIntervalMinutes = 0;
+      let currentWeight = 0;
 
       function clamp(value, minValue, maxValue) {
         return Math.max(minValue, Math.min(value, maxValue));
@@ -366,6 +371,15 @@
         });
       }
 
+      function shuffledIntervals(intervals) {
+        const copy = intervals.slice();
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
       function setNote(message) {
         if (message) {
           note.textContent = message;
@@ -396,10 +410,14 @@
         const baseTotal = totalCalories(base, intervalMinutes, weight);
         const rawScale = Math.sqrt(Math.max(0.1, target / baseTotal));
         const scale = clamp(rawScale, 0.7, 1.6);
-        const plan = scaleIntervals(base, scale);
+        const plan = shuffledIntervals(scaleIntervals(base, scale));
         const finalTotal = totalCalories(plan, intervalMinutes, weight);
 
         renderPlan(plan, intervalMinutes, weight);
+
+        currentPlan = plan.slice();
+        currentIntervalMinutes = intervalMinutes;
+        currentWeight = weight;
 
         planMeta.textContent = `Interval length: ${intervalMinutes.toFixed(1)} min`;
         totalCals.textContent = `Estimated total: ${finalTotal.toFixed(0)} kcal`;
@@ -415,6 +433,14 @@
           );
         }
       }
+
+      shuffleBtn.addEventListener("click", () => {
+        if (!currentPlan.length) {
+          return;
+        }
+        currentPlan = shuffledIntervals(currentPlan);
+        renderPlan(currentPlan, currentIntervalMinutes, currentWeight);
+      });
 
       form.addEventListener("submit", onSubmit);
       onSubmit(new Event("submit"));
